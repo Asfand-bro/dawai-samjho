@@ -335,8 +335,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Gemini Client Setup ───────────────────────────────────────────────────────
-client = genai.Client()
+# ── Gemini Client Setup (Supports Local .env & Streamlit Cloud Secrets) ───────
+api_key = os.environ.get("GEMINI_API_KEY")
+if not api_key:
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            api_key = st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        pass
+
+if not api_key:
+    st.error("Please add your GEMINI_API_KEY in Streamlit Cloud Settings > Secrets to activate the AI.")
+    st.stop()
+
+client = genai.Client(api_key=api_key)
 MODEL = "gemma-4-26b-a4b-it"
 VISION_MODEL = "gemini-3.5-flash-lite"
 
